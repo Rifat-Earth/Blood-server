@@ -2,9 +2,9 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
-
-const app = express();
 const port = process.env.PORT || 5000;
+const app = express();
+
 
 app.use(cors());
 app.use(express.json());
@@ -31,9 +31,14 @@ async function run() {
         const donationsCollection = database.collection("donations");
 
         app.post("/add-blood", async (req, res) => {
-            const donation = req.body;
-            const result = await donationsCollection.insertOne(donation);
-            res.send(result);
+            try {
+                const donation = req.body;
+                const result = await donationsCollection.insertOne(donation);
+                res.status(200).json(result);
+            } catch (error) {
+                console.error("Error inserting donation:", error);
+                res.status(500).json({ error: "Failed to add donation" });
+            }
         });
 
 
@@ -44,8 +49,8 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db("admin").command({ ping: 1 });
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
